@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
+// IMPORTS NECESSÁRIOS
+use App\Services\Task\Contracts\TaskServiceInterface;
+use App\Services\Task\Concretes\TaskService;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -17,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Binding da interface para a implementação concreta
+        $this->app->bind(TaskServiceInterface::class, TaskService::class);
+
         if ($this->app->environment('local') && class_exists(\Laravel\Telescope\TelescopeServiceProvider::class)) {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);
