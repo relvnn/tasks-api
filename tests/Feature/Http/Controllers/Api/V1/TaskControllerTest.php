@@ -6,16 +6,17 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-// Usa o trait RefreshDatabase para garantir um banco limpo a cada teste
 uses(RefreshDatabase::class);
 
-// Cria um usuário antes de cada teste
 beforeEach(function () {
     $this->user = User::factory()->create();
+    $this->otherUser = User::factory()->create();
 });
 
 it('Listar Tarefas', function () {
-    Task::factory()->count(3)->create();
+    Task::factory()->count(3)->create([
+        'user_id' => $this->user->id
+    ]);
 
     $response = $this->actingAs($this->user, 'api')->getJson('/api/v1/tasks');
 
@@ -26,6 +27,7 @@ it('Listar Tarefas', function () {
             ]
         ]);
 });
+
 
 it('Criar Tarefas', function () {
     $data = [
@@ -39,7 +41,7 @@ it('Criar Tarefas', function () {
     $response->assertStatus(201)
         ->assertJsonFragment(['title' => 'Nova tarefa']);
 
-    $this->assertDatabaseHas('tasks', ['title' => 'Nova tarefa']);
+    $this->assertDatabaseHas('tasks', ['title' => 'Nova tarefa', 'user_id' => $this->user->id]);
 });
 
 it('Validação dos campos obrigatórios ao criar uma tarefa', function () {
@@ -50,7 +52,7 @@ it('Validação dos campos obrigatórios ao criar uma tarefa', function () {
 });
 
 it('Exibir os detalhes de uma tarefa', function () {
-    $task = Task::factory()->create();
+    $task = Task::factory()->create(['user_id' => $this->user->id]);
 
     $response = $this->actingAs($this->user, 'api')->getJson("/api/v1/tasks/{$task->id}");
 
@@ -59,7 +61,7 @@ it('Exibir os detalhes de uma tarefa', function () {
 });
 
 it('Atualizar uma tarefa', function () {
-    $task = Task::factory()->create(['is_completed' => false]);
+    $task = Task::factory()->create(['user_id' => $this->user->id, 'is_completed' => false]);
 
     $data = ['title' => 'Título atualizado', 'is_completed' => true];
 
@@ -72,7 +74,7 @@ it('Atualizar uma tarefa', function () {
 });
 
 it('Validação dos campos ao atualizar uma tarefa', function () {
-    $task = Task::factory()->create();
+    $task = Task::factory()->create(['user_id' => $this->user->id]);
 
     $data = ['is_completed' => 'invalid_boolean'];
 
@@ -83,7 +85,7 @@ it('Validação dos campos ao atualizar uma tarefa', function () {
 });
 
 it('Deletar uma tarefa', function () {
-    $task = Task::factory()->create();
+    $task = Task::factory()->create(['user_id' => $this->user->id]);
 
     $response = $this->actingAs($this->user, 'api')->deleteJson("/api/v1/tasks/{$task->id}");
 
@@ -91,4 +93,51 @@ it('Deletar uma tarefa', function () {
         ->assertJsonFragment(['success' => true]);
 
     $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
+});
+
+it('Marca uma tarefa como concluída', function () {
+    $task = Task::factory()->create(['user_id' => $this->user->id, 'is_completed' => false]);
+
+    $response = $this->actingAs($this->user, 'api')
+        ->patchJson("/api/v1/tasks/{$task->id}/done");
+
+    $response->assertStatus(200)
+        ->assertJsonFragment(['is_completed' => true]);
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'is_completed' => true,
+    ]);
+});
+
+it('Não permite que outro usuário edite a tarefa', function () {
+    $task = Task::factory()->create(['user_id' => $this->user->id]);
+
+    $response = $this->actingAs($this->otherUser, 'api')
+        ->putJson("/api/v1/tasks/{$task->id}", ['title' => 'Novo título']);
+
+    $response->assertStatus(403);
+});
+
+it('Não permite que outro usuário delete a tarefa', function () {
+    $task = Task::factory()->create(['user_id' => $this->user->id]);
+
+    $response = $this->actingAs($this->otherUser, 'api')
+        ->deleteJson("/api/v1/tasks/{$task->id}");
+
+    $response->assertStatus(403);
+});
+
+it('Não permite que outro usuário marque a tarefa como concluída', function () {
+    $task = Task::factory()->create(['user_id' => $this->user->id, 'is_completed' => false]);
+
+    $response = $this->actingAs($this->otherUser, 'api')
+        ->patchJson("/api/v1/tasks/{$task->id}/done");
+
+    $response->assertStatus(403);
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'is_completed' => false,
+    ]);
 });

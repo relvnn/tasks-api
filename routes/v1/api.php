@@ -44,4 +44,5 @@ Route::group(['middleware' => 'auth:api'], function () {
     // Rotas de Tarefas
     // ------------------------
     Route::apiResource('tasks', TaskController::class)->names('tasks');
+    Route::patch('tasks/{task}/done', [TaskController::class, 'markAsDone'])->name('tasks.done');
 });

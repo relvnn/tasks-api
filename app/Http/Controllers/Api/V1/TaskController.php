@@ -8,7 +8,8 @@ use App\Http\Requests\Api\V1\Task\UpdateTaskRequest;
 use App\Http\Resources\Api\Task\TaskResource;
 use App\Services\Task\Contracts\TaskServiceInterface;
 use App\Models\Task;
-use OpenApi\Annotations as OA;
+use Illuminate\Http\Request;
+//use OpenApi\Annotations as OA;
 
 /**
  * Controller responsável por gerenciar as tarefas via API.
@@ -28,9 +29,12 @@ class TaskController extends Controller
     /**
      * Lista as tarefas paginadas.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = $this->taskService->listTasks();
+        $filters = $request->only(['is_completed', 'due_date']);
+
+        $tasks = $this->taskService->listTasks($filters);
+
         return TaskResource::collection($tasks);
     }
 
@@ -56,7 +60,7 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        $task = $this->taskService->updateTask($task, $request->validated());
+        $task = $this->taskService->updateTask($task, $request->validated(), auth()->id());
         return new TaskResource($task);
     }
 
@@ -65,10 +69,19 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
-        $this->taskService->deleteTask($task);
+        $this->taskService->deleteTask($task, auth()->id());
         return response()->json([
             'success' => true,
-            'message' => 'Task deleted successfully'
+            'message' => 'Task deleted successfully',
         ]);
+    }
+
+    /**
+     * Marca uma tarefa como concluída.
+     */
+    public function markAsDone(Task $task)
+    {
+        $task = $this->taskService->markAsDone($task, auth()->id());
+        return new TaskResource($task);
     }
 }
