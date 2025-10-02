@@ -1,38 +1,115 @@
-{
-    "openapi": "3.0.0",
-    "info": {
-        "title": "API Tasks",
-        "description": "Documentação da API de Tasks",
-        "contact": {
-            "email": "contato@exemplo.com"
+    {
+        "openapi": "3.0.0",
+        "info": {
+            "title": "API Tasks",
+            "description": "Documentação da API de Tasks",
+            "contact": {
+                "email": "contato@exemplo.com"
+            },
+            "version": "1.0.0"
         },
-        "version": "1.0.0"
-    },
-    "servers": [
-        {
-            "url": "http://127.0.0.1:8000/api/v1",
-            "description": "Servidor local"
-        }
-    ],
-    "paths": {
-        "/api/v1/tasks": {
-            "get": {
-                "tags": [
-                    "Tasks"
-                ],
-                "summary": "Listar tarefas",
-                "description": "Retorna uma lista paginada de tarefas",
-                "operationId": "b07f65b771b24b2f1a573bbaef391dad",
-                "responses": {
-                    "200": {
-                        "description": "Lista de tarefas",
+        "servers": [
+            {
+                "url": "http://127.0.0.1:8000/api/v1",
+                "description": "Servidor local"
+            }
+        ],
+        "paths": {
+            "/tasks": {
+                "get": {
+                    "tags": [
+                        "Tasks"
+                    ],
+                    "summary": "Listar tarefas",
+                    "description": "Retorna uma lista paginada de tarefas",
+                    "operationId": "listTasks",
+                    "responses": {
+                        "200": {
+                            "description": "Lista de tarefas",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer"
+                                                        },
+                                                        "title": {
+                                                            "type": "string"
+                                                        },
+                                                        "description": {
+                                                            "type": "string"
+                                                        },
+                                                        "is_completed": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "due_date": {
+                                                            "type": "string",
+                                                            "nullable": true
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string"
+                                                        },
+                                                        "updated_at": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "security": [
+                        {
+                            "bearerAuth": []
+                        }
+                    ]
+                },
+                "post": {
+                    "tags": [
+                        "Tasks"
+                    ],
+                    "summary": "Criar nova tarefa",
+                    "description": "Cria uma nova tarefa",
+                    "operationId": "createTask",
+                    "requestBody": {
+                        "required": true,
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "type": "object",
                                     "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Nova tarefa"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "Descrição da tarefa"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "201": {
+                            "description": "Tarefa criada",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "data": {
+                                                "type": "object",
                                                 "properties": {
                                                     "id": {
                                                         "type": "integer"
@@ -56,310 +133,344 @@
                                                     "updated_at": {
                                                         "type": "string"
                                                     }
-                                                },
-                                                "type": "object"
+                                                }
                                             }
                                         }
-                                    },
-                                    "type": "object"
+                                    }
                                 }
                             }
                         }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
+                    },
+                    "security": [
+                        {
+                            "bearerAuth": []
+                        }
+                    ]
+                }
             },
-            "post": {
-                "tags": [
-                    "Tasks"
-                ],
-                "summary": "Criar nova tarefa",
-                "description": "Cria uma nova tarefa",
-                "operationId": "c5304e96e65e9f60c95ce2e645775883",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
+            "/tasks/{id}": {
+                "get": {
+                    "tags": [
+                        "Tasks"
+                    ],
+                    "summary": "Mostrar detalhes de uma tarefa",
+                    "description": "Mostrar detalhes de uma tarefa",
+                    "operationId": "getTaskById",
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
                             "schema": {
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Nova tarefa"
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "example": "Descrição da tarefa"
-                                    }
-                                },
-                                "type": "object"
+                                "type": "integer"
                             }
                         }
-                    }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Detalhes da tarefa",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    },
+                                                    "is_completed": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "due_date": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "security": [
+                        {
+                            "bearerAuth": []
+                        }
+                    ]
                 },
-                "responses": {
-                    "201": {
-                        "description": "Tarefa criada",
+                "put": {
+                    "tags": [
+                        "Tasks"
+                    ],
+                    "summary": "Atualizar tarefa",
+                    "description": "Atualizar tarefa",
+                    "operationId": "updateTask",
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "integer"
+                            }
+                        }
+                    ],
+                    "requestBody": {
+                        "required": true,
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "type": "object",
                                     "properties": {
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer"
-                                                },
-                                                "title": {
-                                                    "type": "string"
-                                                },
-                                                "description": {
-                                                    "type": "string"
-                                                },
-                                                "is_completed": {
-                                                    "type": "boolean"
-                                                },
-                                                "due_date": {
-                                                    "type": "string",
-                                                    "nullable": true
-                                                },
-                                                "created_at": {
-                                                    "type": "string"
-                                                },
-                                                "updated_at": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Título atualizado"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "Descrição atualizada"
                                         }
-                                    },
-                                    "type": "object"
+                                    }
                                 }
                             }
                         }
-                    }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Tarefa atualizada",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    },
+                                                    "is_completed": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "due_date": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "security": [
+                        {
+                            "bearerAuth": []
+                        }
+                    ]
                 },
-                "security": [
-                    {
-                        "bearerAuth": []
+                "delete": {
+                    "tags": [
+                        "Tasks"
+                    ],
+                    "summary": "Deletar tarefa",
+                    "description": "Deletar tarefa",
+                    "operationId": "deleteTask",
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "integer"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Tarefa deletada",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "success": {
+                                                "type": "boolean"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "security": [
+                        {
+                            "bearerAuth": []
+                        }
+                    ]
+                }
+            },
+            "/auth/register": {
+                "post": {
+                    "tags": [
+                        "Auth"
+                    ],
+                    "summary": "Registrar novo usuário",
+                    "description": "Endpoint para registrar um novo usuário",
+                    "operationId": "registerUser",
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "name",
+                                        "email",
+                                        "password",
+                                        "password_confirmation"
+                                    ],
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Novo Usuário"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "novo@example.com"
+                                        },
+                                        "password": {
+                                            "type": "string",
+                                            "example": "senha123"
+                                        },
+                                        "password_confirmation": {
+                                            "type": "string",
+                                            "example": "senha123"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "201": {
+                            "description": "Usuário registrado com sucesso"
+                        },
+                        "400": {
+                            "description": "Dados inválidos"
+                        }
                     }
-                ]
+                }
+            },
+            "/auth/login": {
+                "post": {
+                    "tags": [
+                        "Auth"
+                    ],
+                    "summary": "Login do usuário",
+                    "description": "Endpoint para autenticar um usuário",
+                    "operationId": "loginUser",
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "email",
+                                        "password"
+                                    ],
+                                    "properties": {
+                                        "email": {
+                                            "type": "string",
+                                            "example": "novo@example.com"
+                                        },
+                                        "password": {
+                                            "type": "string",
+                                            "example": "senha123"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Login bem-sucedido",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "token": {
+                                                "type": "string",
+                                                "description": "JWT Token de autenticação"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Credenciais inválidas"
+                        }
+                    }
+                }
             }
         },
-        "/api/v1/tasks/{id}": {
-            "get": {
-                "tags": [
-                    "Tasks"
-                ],
-                "summary": "Mostrar detalhes de uma tarefa",
-                "description": "Mostrar detalhes de uma tarefa",
-                "operationId": "642c612eee36cf59133e03508c387380",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Detalhes da tarefa",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer"
-                                                },
-                                                "title": {
-                                                    "type": "string"
-                                                },
-                                                "description": {
-                                                    "type": "string"
-                                                },
-                                                "is_completed": {
-                                                    "type": "boolean"
-                                                },
-                                                "due_date": {
-                                                    "type": "string",
-                                                    "nullable": true
-                                                },
-                                                "created_at": {
-                                                    "type": "string"
-                                                },
-                                                "updated_at": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
+        "tags": [
+            {
+                "name": "Tasks",
+                "description": "API para gerenciar tarefas"
             },
-            "put": {
-                "tags": [
-                    "Tasks"
-                ],
-                "summary": "Atualizar tarefa",
-                "description": "Atualizar tarefa",
-                "operationId": "64f41ee797fe8e6e81cab8271ffb9ec0",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Título atualizado"
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "example": "Descrição atualizada"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Tarefa atualizada",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer"
-                                                },
-                                                "title": {
-                                                    "type": "string"
-                                                },
-                                                "description": {
-                                                    "type": "string"
-                                                },
-                                                "is_completed": {
-                                                    "type": "boolean"
-                                                },
-                                                "due_date": {
-                                                    "type": "string",
-                                                    "nullable": true
-                                                },
-                                                "created_at": {
-                                                    "type": "string"
-                                                },
-                                                "updated_at": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Tasks"
-                ],
-                "summary": "Deletar tarefa",
-                "description": "Deletar tarefa",
-                "operationId": "63a569b00eae54d8be881b5ea119cbf4",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Tarefa deletada",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
+            {
+                "name": "Auth",
+                "description": "Endpoints de autenticação (registro e login)"
             }
-        }
-    },
-    "tags": [
-        {
-            "name": "Tasks",
-            "description": "API para gerenciar tarefas"
-        }
-    ],
-    "components": {
-        "securitySchemes": {
-            "bearerAuth": {
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT"
+        ],
+        "components": {
+            "securitySchemes": {
+                "bearerAuth": {
+                    "type": "http",
+                    "scheme": "bearer",
+                    "bearerFormat": "JWT"
+                }
             }
-        }
-    },
-    "security": [
-        {
-            "bearerAuth": []
-        }
-    ]
-}
+        },
+        "security": [
+            {
+                "bearerAuth": []
+            }
+        ]
+    }
