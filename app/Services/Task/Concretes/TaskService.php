@@ -21,7 +21,7 @@ class TaskService implements TaskServiceInterface
      */
     public function listTasks(array $filters = [])
     {
-        $query = $this->taskRepository->all();
+        $query = $this->taskRepository->all()->where('user_id', auth()->id());
 
         if (isset($filters['is_completed'])) {
             $query->where('is_completed', $filters['is_completed']);
@@ -33,7 +33,6 @@ class TaskService implements TaskServiceInterface
 
         return $query->paginate(10);
     }
-
 
     /**
      * Cria uma nova tarefa.
